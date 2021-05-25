@@ -38,7 +38,7 @@ import com.google.ar.core.Camera;
 import com.google.ar.core.Config;
 import com.google.ar.core.Frame;
 import com.google.ar.core.Session;
-import com.google.ar.core.examples.java.augmentedimage.rendering.AugmentedImageRenderer;
+import com.google.ar.core.examples.java.augmentedimage.rendering.AugmentedImageRendererSingle;
 import com.google.ar.core.examples.java.common.helpers.CameraPermissionHelper;
 import com.google.ar.core.examples.java.common.helpers.DisplayRotationHelper;
 import com.google.ar.core.examples.java.common.helpers.FullScreenHelper;
@@ -84,7 +84,7 @@ public class AugmentedImageActivity extends AppCompatActivity implements GLSurfa
   private final TrackingStateHelper trackingStateHelper = new TrackingStateHelper(this);
 
   private final BackgroundRenderer backgroundRenderer = new BackgroundRenderer();
-  private final AugmentedImageRenderer augmentedImageRenderer = new AugmentedImageRenderer();
+  private final AugmentedImageRendererSingle augmentedImageRenderer = new AugmentedImageRendererSingle();
 
   private boolean shouldConfigureSession = false;
 
@@ -295,6 +295,7 @@ public class AugmentedImageActivity extends AppCompatActivity implements GLSurfa
       frame.getLightEstimate().getColorCorrection(colorCorrectionRgba, 0);
 
       // Visualize augmented images.
+
       drawAugmentedImages(frame, projmtx, viewmtx, colorCorrectionRgba);
     } catch (Throwable t) {
       // Avoid crashing the application due to unhandled exceptions.
@@ -339,6 +340,7 @@ public class AugmentedImageActivity extends AppCompatActivity implements GLSurfa
           // Create a new anchor for newly found images.
           if (!augmentedImageMap.containsKey(augmentedImage.getIndex())) {
             Anchor centerPoseAnchor = augmentedImage.createAnchor(augmentedImage.getCenterPose());
+//            augmentedImageMap.clear();
             augmentedImageMap.put(
                 augmentedImage.getIndex(), Pair.create(augmentedImage, centerPoseAnchor));
           }
@@ -377,35 +379,41 @@ public class AugmentedImageActivity extends AppCompatActivity implements GLSurfa
     // Option 2) has
     // * shorter setup time
     // * doesn't require images to be packaged in apk.
-    if (useSingleImage) {
-      Bitmap augmentedImageBitmap = loadAugmentedImageBitmap();
-      if (augmentedImageBitmap == null) {
-        return false;
-      }
+//    if (useSingleImage) {
+//      Bitmap augmentedImageBitmap = loadAugmentedImageBitmap("tyre1.jpeg");
+//      if (augmentedImageBitmap == null) {
+//        return false;
+//      }
 
       augmentedImageDatabase = new AugmentedImageDatabase(session);
-      augmentedImageDatabase.addImage("image_name", augmentedImageBitmap);
+      augmentedImageDatabase.addImage("image_name", loadAugmentedImageBitmap("stabilo.jpeg"), 0.15F);
+      augmentedImageDatabase.addImage("image_name", loadAugmentedImageBitmap("X.png"), 0.10F);
+      augmentedImageDatabase.addImage("image_name", loadAugmentedImageBitmap("bmw_cut.png"), 0.15F);
+      augmentedImageDatabase.addImage("image_name", loadAugmentedImageBitmap("tyre4.png"), 0.06F);
+      augmentedImageDatabase.addImage("image_name", loadAugmentedImageBitmap("tyre6.jpeg"), 0.06F);
+      augmentedImageDatabase.addImage("image_name", loadAugmentedImageBitmap("tyre7.png"),0.20F);
+      augmentedImageDatabase.addImage("image_name", loadAugmentedImageBitmap("Pirelli_logo.png"),0.40F);
       // If the physical size of the image is known, you can instead use:
       //     augmentedImageDatabase.addImage("image_name", augmentedImageBitmap, widthInMeters);
       // This will improve the initial detection speed. ARCore will still actively estimate the
       // physical size of the image as it is viewed from multiple viewpoints.
-    } else {
+//    } else {
       // This is an alternative way to initialize an AugmentedImageDatabase instance,
       // load a pre-existing augmented image database.
-      try (InputStream is = getAssets().open("sample_database.imgdb")) {
-        augmentedImageDatabase = AugmentedImageDatabase.deserialize(session, is);
-      } catch (IOException e) {
-        Log.e(TAG, "IO exception loading augmented image database.", e);
-        return false;
-      }
-    }
+//      try (InputStream is = getAssets().open("sample_database.imgdb")) {
+//        augmentedImageDatabase = AugmentedImageDatabase.deserialize(session, is);
+//      } catch (IOException e) {
+//        Log.e(TAG, "IO exception loading augmented image database.", e);
+//        return false;
+//      }
+//    }
 
     config.setAugmentedImageDatabase(augmentedImageDatabase);
     return true;
   }
 
-  private Bitmap loadAugmentedImageBitmap() {
-    try (InputStream is = getAssets().open("default.jpg")) {
+  private Bitmap loadAugmentedImageBitmap(String imgName) {
+    try (InputStream is = getAssets().open(imgName)) {
       return BitmapFactory.decodeStream(is);
     } catch (IOException e) {
       Log.e(TAG, "IO exception loading augmented image bitmap.", e);
