@@ -1,5 +1,6 @@
 # arcore-augmented-images
 Riconoscimento di immagini con posizionamento di modelli 3D "scalati"
+https://developers.google.com/ar/develop/java/augmented-images
 
 # Comandi Blender
 X = Cancella oggetto
